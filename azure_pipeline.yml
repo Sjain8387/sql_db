@@ -1,0 +1,36 @@
+trigger:
+- main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  sqlServerName: 'Local instance MySQL84'
+  databaseName: 'assignment4'
+  sqlUser: 'root'
+  sqlPassword: '@Parttime2023'
+
+steps:
+- task: SqlAzureDacpacDeployment@1
+  displayName: 'Run create_table.sql'
+  inputs:
+    azureSubscription: 'Azure for Students'
+    serverName: '$(sqlServerName)'
+    databaseName: '$(databaseName)'
+    sqlUsername: '$(sqlUser)'
+    sqlPassword: '$(sqlPassword)'
+    sqlFile: 'create_table.sql'
+
+- task: SqlAzureDacpacDeployment@1
+  displayName: 'Run update_table.sql'
+  inputs:
+    azureSubscription: 'Azure for Students'
+    serverName: '$(sqlServerName)'
+    databaseName: '$(databaseName)'
+    sqlUsername: '$(sqlUser)'
+    sqlPassword: '$(sqlPassword)'
+    sqlFile: 'update_table.sql'
+
+- script: |
+    sqlcmd -S $(sqlServerName) -d $(databaseName) -U $(sqlUser) -P $(sqlPassword) -Q "SELECT Age FROM SampleTable"
+  displayName: 'Validate Schema Update'
